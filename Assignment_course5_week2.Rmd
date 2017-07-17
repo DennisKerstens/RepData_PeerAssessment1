@@ -1,0 +1,84 @@
+---
+title: "Reprod.Research.Week2"
+author: "Dennis Kerstens"
+date: "17 juli 2017"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup and load data, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+rm(list = ls())
+setwd("D:/My Data/PersonalFiles_for_Backup/Coursera/Course5_Week2")
+library(plyr)
+library(ggplot2)
+library(lattice)
+library(data.table)
+download.file("https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip",destfil='assignment.zip')
+unzip('assignment.zip')
+activity <- read.csv("activity.csv")
+```
+
+```{r setup of data}
+activity$date <- as.Date(activity$date, "%Y-%m-%d")
+activity <- as.data.frame(activity)
+```
+
+
+```{r calculate mean and median}
+steps <- with(activity, tapply(steps, date, sum, na.rm = TRUE))
+mean(steps)
+median(steps)
+```
+
+```{r average daily activity pattern & plot steps}
+meanint<- aggregate(x = activity$steps, by = list(activity$interval), FUN = mean, na.rm = TRUE)
+names(meanint) <- c("interval","steps")
+xyplot(steps ~ interval, data=meanint, type="l", grid=TRUE, ylab="Mean of steps", xlab="5-min. interval", main="Mean number of steps")
+```
+```{r 5 minute interval with maximum number of steps}
+meanint[which.max(meanint$steps),c("interval")]
+```
+
+```{r Imputing missing values, number of NAs}
+library(scales)
+sum(is.na(activity))
+```
+```{r subsetting NA values, substitude by median and create new data set}
+activity<-as.data.table(activity)
+activity[is.na(steps), "steps"] <- activity[, c(lapply(.SD, median, na.rm = TRUE)), .SDcols = c("steps")]
+```
+
+```{r first computing mean and median}
+steps <- with(activity, tapply(steps, date, sum, na.rm = TRUE))
+mean(steps)
+median(steps)
+```
+
+```{r then make figure}
+Totalsteps <- activity[, c(lapply(.SD, sum, na.rm = FALSE)), .SDcols = c("steps"), by = .(date)] 
+Totalsteps[, .(Mean_Steps = mean(steps), Median_Steps = median(steps))]
+ggplot(Totalsteps, aes(x = steps)) + geom_histogram(fill = "blue", binwidth = 1000) + labs(title = "Daily Steps", x = "Steps", y = "Frequency")
+```
+
+```{r weekdays and weekends}
+activity <- mutate(activity, day = weekdays(activity$date))
+
+weekdays <- c('maandag', 'dinsdag', 'woensdag', 'donderdag', 'vrijdag')
+
+activity$day <- factor((weekdays(activity$date) %in% weekdays), 
+         levels=c(FALSE, TRUE), labels=c('Weekend', 'Weekday'))
+weekdays <- subset(activity, day == "Weekday")
+weekends <- subset(activity, day == "Weekend")
+
+weekendmeans <- with(weekends, tapply(steps, interval, mean))
+weekdaymeans <- with(weekdays, tapply(steps, interval, mean))
+
+xyplot(weekendmeans ~ interval, data=weekends, type="l", grid=TRUE, ylab="", xlab="minutes a day", main="")
+
+```
+```{r}
+xyplot(weekdaymeans ~ interval, data=weekdays, type="l", grid=TRUE, ylab="", xlab="minutes a day", main="")
+```
+
