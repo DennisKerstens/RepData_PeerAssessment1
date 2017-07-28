@@ -36,7 +36,7 @@ names(meanint) <- c("interval","steps")
 xyplot(steps ~ interval, data=meanint, type="l", grid=TRUE, ylab="Mean of steps", xlab="5-min. interval", main="Mean number of steps")
 ```
 
-![](Assignment_course5_week2_files/figure-html/average daily activity pattern & plot steps-1.png)<!-- -->
+![](Assignment_course5_week2_files/figure-html/figure1.png)<!-- -->
 
 ```r
 meanint[which.max(meanint$steps),c("interval")]
@@ -101,7 +101,7 @@ Totalsteps[, .(Mean_Steps = mean(steps), Median_Steps = median(steps))]
 ggplot(Totalsteps, aes(x = steps)) + geom_histogram(fill = "blue", binwidth = 1000) + labs(title = "Daily Steps", x = "Steps", y = "Frequency")
 ```
 
-![](Assignment_course5_week2_files/figure-html/then make figure-1.png)<!-- -->
+![](Assignment_course5_week2_files/figure-html/figure2.png)<!-- -->
 
 
 ```r
@@ -120,11 +120,11 @@ weekdaymeans <- with(weekdays, tapply(steps, interval, mean))
 xyplot(weekendmeans ~ interval, data=weekends, type="l", grid=TRUE, ylab="", xlab="minutes a day", main="")
 ```
 
-![](Assignment_course5_week2_files/figure-html/weekdays and weekends-1.png)<!-- -->
+![](Assignment_course5_week2_files/figure-html/figure3.png)<!-- -->
 
 ```r
 xyplot(weekdaymeans ~ interval, data=weekdays, type="l", grid=TRUE, ylab="", xlab="minutes a day", main="")
 ```
 
-![](Assignment_course5_week2_files/figure-html/unnamed-chunk-1-1.png)<!-- -->
+![](Assignment_course5_week2_files/figure-html/figure4.png)<!-- -->
 
